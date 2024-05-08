@@ -10,17 +10,14 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 class MoviesController extends AbstractController
 {
-    public function __construct(
-        private MovieRepository $movieRepository,
-        private SerializerInterface $serializer
-    ) {}
-
-    #[Route('/movies', methods: ['GET'])]
-    public function list(): JsonResponse
+    public function showMovies(Request $request)
     {
-        $movies = $this->movieRepository->findAll();
-        $data = $this->serializer->serialize($movies, "json", ["groups" => "default"]);
-
-        return new JsonResponse($data, json: true);
+        $sortBy = $request->query->get('sort_by', 'latest'); // Per impostazione predefinita, ordiniamo per ultimo
+        $movies = $this->getDoctrine()->getRepository(Movie::class)->findAllSortedBy($sortBy);
+        
+        // Visualizzazione di un elenco di film
+        return $this->render('movies/index.html.twig', [
+            'movies' => $movies,
+        ]);
     }
 }
