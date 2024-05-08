@@ -16,9 +16,25 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class MovieRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function findAllSortedBy($orderBy)
     {
-        parent::__construct($registry, Movie::class);
+        switch ($orderBy) {
+            case 'latest':
+                return $this->createQueryBuilder('m')
+                ->orderBy('m.releaseDate', 'DESC')
+                ->getQuery()
+                ->getResult();
+            case 'rating':
+                return $this->createQueryBuilder('m')
+                ->orderBy('m.rating', 'DESC')
+                ->getQuery()
+                ->getResult();
+            case 'genres':
+                // Supponiamo che ce un metodo che restituisce i film ordinati per genere
+                return $this->findByGenres();
+            default:
+                return $this->findAll(); //Restituisce tutti i film per impostazione predefinita
+        }
     }
 
     //    /**
